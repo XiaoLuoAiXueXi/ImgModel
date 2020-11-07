@@ -100,8 +100,8 @@ net=Vgg16().cuda(1)
 loss_func =nn.CrossEntropyLoss()
 # 需要把参数传递进去进行优化
 # 这个不要放到循环离去，否则会循环定义，显存会爆炸
-optimizer=optim.Adam(net.parameters(),lr=0.01)
-scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=10, verbose=True)
+optimizer=optim.Adam(net.parameters(),lr=0.1)
+scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=4, verbose=True)
 #!!!需要探索一些多GPU运行机理
 # net = torch.nn.DataParallel(Model.cuda(), device_ids=[3])
 epochs=100
