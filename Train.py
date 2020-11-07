@@ -104,7 +104,7 @@ optimizer=optim.Adam(net.parameters(),lr=0.01)
 scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=10, verbose=True)
 #!!!需要探索一些多GPU运行机理
 # net = torch.nn.DataParallel(Model.cuda(), device_ids=[3])
-epochs=5
+epochs=100
 loss=Train(epochs)
 print(type(loss))
 print(loss)
