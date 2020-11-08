@@ -2,6 +2,4 @@
 
 包括vgg16，resnet
 
-比较适合新手练手
-
 环境：python3.7.4+torch1.0.1+cu80+cuda8.0+cudnn

@@ -7,7 +7,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 import matplotlib.pyplot as plt
 from Vgg16 import Vgg16
 from LoadData import LoadData
-
+from pythontools import EarlyStopping
 
 '''
 函数部分
@@ -16,6 +16,7 @@ def Train(epochs):
 
     # ?这个用来干啥
     train_loss=[]
+    acc=[]
     # 第一层是迭代的次数
     for epoch in range(epochs):
         # 一个epoch跑完所有的图片一次，所以这里是跑完2000张需要的batch次数
@@ -41,10 +42,24 @@ def Train(epochs):
             train_batch_loss.append(loss.item())
             print("epoch：", epoch, "的第" , i, "个inputs",epoch, i*batch_size, loss.item())
             torch.cuda.empty_cache()
+
+
+
+
+
         loss_epoch=np.sum(train_batch_loss)/len(train)
         scheduler.step(loss_epoch)
         train_loss.append(loss_epoch)
-    return train_loss
+        acc.append(Test())
+
+
+        early_stopping(acc, net)
+        if early_stopping.early_stop:
+            print("Early stopping")
+            break
+
+
+    return train_loss,acc
 
 def Test():
     total_correct = 0
@@ -63,14 +78,14 @@ def Test():
         pred=np.argmax(out)
         if pred==y:
             total_correct += 1
-            print(i,end='')
+            # print(i,end='')
 
     acc = total_correct / total
     print('\ntest acc:', acc)
-
     torch.cuda.empty_cache()
+    return acc
 
-def Draw(epoch,*loss):
+def Draw(name,epoch,*loss):
     '''
     这里不知道为什么list变成了numpy了，np.array(list).reshape()改变他的形状
     可以
@@ -81,7 +96,7 @@ def Draw(epoch,*loss):
     y=np.array(loss).reshape(epoch,)
     x=epoch
     plt.plot(range(x),y,'-r')
-    plt.savefig('output.png')
+    plt.savefig(name)
 
 
 
@@ -97,16 +112,22 @@ batch_size=32
 train=LoadData(batch_size).getTrainDataset()
 test=LoadData(8).getTestDataset()
 net=Vgg16().cuda(1)
+
+
+
+early_stopping = EarlyStopping(patience=10, verbose=True)
 loss_func =nn.CrossEntropyLoss()
 # 需要把参数传递进去进行优化
 # 这个不要放到循环离去，否则会循环定义，显存会爆炸
-optimizer=optim.Adam(net.parameters(),lr=0.1)
-scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=4, verbose=True)
+optimizer=optim.SGD(net.parameters(),lr=0.005)
+scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=5, verbose=True)
 #!!!需要探索一些多GPU运行机理
 # net = torch.nn.DataParallel(Model.cuda(), device_ids=[3])
-epochs=100
-loss=Train(epochs)
+epochs=50
+loss,acc=Train(epochs)
 print(type(loss))
 print(loss)
-Draw(epochs,loss)
-Test()
+Draw('loss.png',epochs,loss)
+# 清空画板
+plt.cla()
+Draw('acc.png',epochs,acc)
