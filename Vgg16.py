@@ -4,7 +4,7 @@ from torch import  nn
 from torch import optim
 
 class Vgg16(nn.Module):
-    def __init__(self):
+    def __init__(self,numclass=2):
         super().__init__()
         self.conv1=nn.Sequential(
             nn.Conv2d(in_channels=3,out_channels=64,kernel_size=3,padding=1),
@@ -60,7 +60,7 @@ class Vgg16(nn.Module):
             nn.ReLU(),
             nn.Linear(4096,4096),
             nn.ReLU(),
-            nn.Linear(4096,2)
+            nn.Linear(4096,numclass)
         )
         # 输出为两类，所以为（4096,2）
 

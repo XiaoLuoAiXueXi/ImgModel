@@ -13,9 +13,8 @@ data_transform = transforms.Compose([
 
 
 class LoadData():
-    def __init__(self,batch_size):
-        self.pathTrain=r"data/train/"
-        self.pathTest=r"data/test/"
+    def __init__(self,batch_size,path):
+        self.pathTrain,self.pathTest=path
         # 这个遍历是可以index的[][]
         self.train_dataset = torchvision.datasets.ImageFolder(root=self.pathTrain,transform=data_transform)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size = batch_size, shuffle=True, num_workers=0)
@@ -28,5 +27,3 @@ class LoadData():
 
     def getTestDataset(self):
         return  self.val_loader
-
-LoadData(8)

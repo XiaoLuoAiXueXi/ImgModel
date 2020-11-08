@@ -53,10 +53,10 @@ def Train(epochs):
         acc.append(Test())
 
 
-        early_stopping(acc, net)
-        if early_stopping.early_stop:
-            print("Early stopping")
-            break
+        # early_stopping(acc, net)
+        # if early_stopping.early_stop:
+        #     print("Early stopping")
+        #     break
 
 
     return train_loss,acc
@@ -105,29 +105,30 @@ def Draw(name,epoch,*loss):
 训练网络
 '''
 
-print(torch.cuda.is_available())
-device=torch.device('cuda:1')
-# 数据集路径
-batch_size=32
-train=LoadData(batch_size).getTrainDataset()
-test=LoadData(8).getTestDataset()
-net=Vgg16().cuda(1)
+if __name__=='__main__':
+    print(torch.cuda.is_available())
+    device=torch.device('cuda:1')
+    # 数据集路径
+    batch_size=32
+    path=[r"VehicleData/train/",r"VehicleData/test/"]
+    data=LoadData(batch_size,path)
+    train=data.getTrainDataset()
+    test=data.getTestDataset()
+    net=Vgg16(4).cuda(1)
 
-
-
-early_stopping = EarlyStopping(patience=10, verbose=True)
-loss_func =nn.CrossEntropyLoss()
-# 需要把参数传递进去进行优化
-# 这个不要放到循环离去，否则会循环定义，显存会爆炸
-optimizer=optim.SGD(net.parameters(),lr=0.005)
-scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=5, verbose=True)
-#!!!需要探索一些多GPU运行机理
-# net = torch.nn.DataParallel(Model.cuda(), device_ids=[3])
-epochs=50
-loss,acc=Train(epochs)
-print(type(loss))
-print(loss)
-Draw('loss.png',epochs,loss)
-# 清空画板
-plt.cla()
-Draw('acc.png',epochs,acc)
+    early_stopping = EarlyStopping(patience=10, verbose=True)
+    loss_func =nn.CrossEntropyLoss()
+    # 需要把参数传递进去进行优化
+    # 这个不要放到循环离去，否则会循环定义，显存会爆炸
+    optimizer=optim.SGD(net.parameters(),lr=0.001)
+    scheduler = ReduceLROnPlateau(optimizer, 'min',factor=0.5, patience=5, verbose=True)
+    #!!!需要探索一些多GPU运行机理
+    # net = torch.nn.DataParallel(Model.cuda(), device_ids=[3])
+    epochs=80
+    loss,acc=Train(epochs)
+    print(type(loss))
+    print(loss)
+    Draw('loss.png',epochs,loss)
+    # 清空画板
+    plt.cla()
+    Draw('acc.png',epochs,acc)
