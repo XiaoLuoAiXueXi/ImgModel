@@ -5,7 +5,7 @@ from torch.autograd import Variable
 import  numpy as np
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import matplotlib.pyplot as plt
-from Vgg16 import Vgg16
+from Nets.Vgg16 import Vgg16
 from LoadData import LoadData
 from pythontools import EarlyStopping
 
